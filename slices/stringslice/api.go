@@ -1,5 +1,7 @@
 package stringslice
 
+import "strings"
+
 func Some(strs []string, someFn func(string) bool) bool {
 	for _, str := range strs {
 		if someFn(str) {
@@ -33,4 +35,10 @@ func MapError(strs []string, mapErrFn func(string) (string, error)) []string {
 	}
 
 	return mapped
+}
+
+func SomeFnIsEqual(to string) func(string) bool {
+	return func(s string) bool {
+		return strings.Compare(to, s) == 0
+	}
 }
