@@ -54,6 +54,8 @@ func (s Slice) FindIndex(bfn BoolFn) *int {
 	return bfn.FindIndex(s)
 }
 
+// Includes searches the slice for the provided int
+// and returns true if found, false otherwise.
 func (s Slice) Includes(integer int) bool {
 	for _, i := range s {
 		if integer == i {
@@ -64,6 +66,8 @@ func (s Slice) Includes(integer int) bool {
 	return false
 }
 
+// IndexOf search for the index of the provided integer
+// and returns a pointer to the int if found, nil otherwise
 func (s Slice) IndexOf(integer int) *int {
 	for iter, i := range s {
 		if integer == i {
@@ -74,6 +78,8 @@ func (s Slice) IndexOf(integer int) *int {
 	return nil
 }
 
+// Join joins each slice member by a separator, skipping
+// the last iteration.
 func (s Slice) Join(sep string) string {
 	var str string
 	for iter, i := range s {
@@ -105,7 +111,7 @@ func (s Slice) First() *int {
 }
 
 func (s Slice) At(index int) *int {
-	if len(s)-1 < index {
+	if index < 0 || len(s)-1 < index {
 		return nil
 	}
 
@@ -113,8 +119,7 @@ func (s Slice) At(index int) *int {
 }
 
 func (s Slice) Prepend(i int) Slice {
-	length := len(s)
-	out := make([]int, 1, length+1)
+	out := make([]int, 1, len(s)+1)
 	out[0] = i
 	return append(out, s...)
 }
@@ -132,5 +137,5 @@ func (s Slice) Sort() Slice {
 
 func (s Slice) Copy(dst []int) Slice {
 	copy(dst, s)
-	return s
+	return dst
 }
