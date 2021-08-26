@@ -1,8 +1,6 @@
 <h1 style="text-align: center">Funked: A Functional Library for Go</h1>
-<p style="text-align: center">
 ![Build](https://github.com/jwhittle933/funked/actions/workflows/ci.yml/badge.svg)
 <a href="https://pkg.go.dev/github.com/jwhittle933/funked"><img src="https://pkg.go.dev/badge/github.com/jwhittle933/funked.svg" alt="Go Reference"></a>
-</p>
 
 Each package in `Funked` observes the same or very similar API. The packages here are designed to create "handles" on
 common slice types for easy use and composition. Nothing here is revolutionary: its goal is ease of use and convenience. 
