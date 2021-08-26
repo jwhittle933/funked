@@ -1,4 +1,5 @@
 <h1 style="text-align: center">Funked: A Functional Library for Go</h1>
+
 ![Build](https://github.com/jwhittle933/funked/actions/workflows/ci.yml/badge.svg)
 <a href="https://pkg.go.dev/github.com/jwhittle933/funked"><img src="https://pkg.go.dev/badge/github.com/jwhittle933/funked.svg" alt="Go Reference"></a>
 
