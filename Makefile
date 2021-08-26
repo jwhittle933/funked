@@ -4,8 +4,9 @@ build:
 	@go build -o ./bin/$(pkg) ./examples/$(pkg)
 .PHONY: build
 
+t ?= ./...
 test:
-	@grc go test -cover ./$(pkg)
+	@grc &> /dev/null && grc go test -cover $(t) || go test -cover $(t)
 .PHONY: test
 
 run:
