@@ -133,5 +133,6 @@ func (bfn BoolFn) AndNot(next BoolFn) BoolFn {
 // Or composes two BoolFn into a new BoolFn, where `bfn` or `next` are expected to return true
 func (bfn BoolFn) Or(next BoolFn) BoolFn {
 	return func(i int, iter int, list []int) bool {
-		return bfn(i, iter, list) || next(i, iter, list) }
+		return bfn(i, iter, list) || next(i, iter, list)
+	}
 }

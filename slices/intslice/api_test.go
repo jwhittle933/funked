@@ -10,6 +10,18 @@ func intSlice(ints ...int) []int {
 	return ints
 }
 
+func boolFnComposer(expected bool) BoolFn {
+	return func(int, int, []int) bool {
+		return expected
+	}
+}
+
+func intFnAccumulator(start int) IntFn {
+	return func(i int, _ int, _ []int) int {
+		return start + i
+	}
+}
+
 func pointerFunc(i int) func() *int {
 	return func() *int {
 		return &i
@@ -302,7 +314,7 @@ func TestIndexOf(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			actual :=IndexOf(test.ints, test.includes)
+			actual := IndexOf(test.ints, test.includes)
 
 			if actual == nil {
 				assert.Nil(t, test.expected())
@@ -367,7 +379,7 @@ func TestLast(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			actual :=Last(test.ints)
+			actual := Last(test.ints)
 
 			if actual == nil {
 				assert.Nil(t, test.expected())
@@ -531,12 +543,12 @@ func TestSort(t *testing.T) {
 
 func TestCopy(t *testing.T) {
 	tests := []struct {
-		name     string
-		ints     []int
+		name string
+		ints []int
 	}{
 		{
-			name:     "Prepends int",
-			ints:     intSlice(101, 200, 150, 1000, 5),
+			name: "Prepends int",
+			ints: intSlice(101, 200, 150, 1000, 5),
 		},
 	}
 
@@ -548,6 +560,136 @@ func TestCopy(t *testing.T) {
 			for i := range actual {
 				assert.Equal(t, expected[i], actual[i])
 			}
+		})
+	}
+}
+
+var noInts []int
+
+func TestBoolFn_And(t *testing.T) {
+	tests := []struct {
+		name     string
+		first    BoolFn
+		second   BoolFn
+		expected bool
+	}{
+		{
+			name:     "And composes two fns together",
+			first:    boolFnComposer(true),
+			second:   boolFnComposer(true),
+			expected: true,
+		},
+		{
+			name:     "Returns last false",
+			first:    boolFnComposer(true),
+			second:   boolFnComposer(false),
+			expected: false,
+		},
+		{
+			name:     "Returns first false",
+			first:    boolFnComposer(false),
+			second:   boolFnComposer(true),
+			expected: false,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			actual := test.first.And(test.second)(0, 0, noInts)
+
+			assert.Equal(t, test.expected, actual)
+		})
+	}
+}
+
+func TestBoolFn_AndNot(t *testing.T) {
+	tests := []struct {
+		name     string
+		first    BoolFn
+		second   BoolFn
+		expected bool
+	}{
+		{
+			name:     "Returns true when Anded fn is returns false",
+			first:    boolFnComposer(true),
+			second:   boolFnComposer(false),
+			expected: true,
+		},
+		{
+			name:     "Returns false when Anded condition returns true",
+			first:    boolFnComposer(true),
+			second:   boolFnComposer(true),
+			expected: false,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			actual := test.first.AndNot(test.second)(0, 0, noInts)
+
+			assert.Equal(t, test.expected, actual)
+		})
+	}
+}
+
+func TestBoolFn_Or(t *testing.T) {
+	tests := []struct {
+		name     string
+		first    BoolFn
+		second   BoolFn
+		expected bool
+	}{
+		{
+			name:     "And composes two fns together",
+			first:    boolFnComposer(true),
+			second:   boolFnComposer(true),
+			expected: true,
+		},
+		{
+			name:     "Returns true if either is true",
+			first:    boolFnComposer(true),
+			second:   boolFnComposer(false),
+			expected: true,
+		},
+		{
+			name:     "Returns false if both are false",
+			first:    boolFnComposer(false),
+			second:   boolFnComposer(false),
+			expected: false,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			actual := test.first.Or(test.second)(0, 0, noInts)
+
+			assert.Equal(t, test.expected, actual)
+		})
+	}
+}
+
+func TestIntFn_And(t *testing.T) {
+	tests := []struct {
+		name     string
+		initial  int
+		first    IntFn
+		second   IntFn
+		expected int
+	}{
+		{
+			name:     "And composes two fns together",
+			initial:  1,
+			first:    intFnAccumulator(10),
+			second:   intFnAccumulator(100),
+			expected: 111,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			actual := test.first.And(test.second)(test.initial, 0, noInts)
+
+			assert.Equal(t, test.expected, actual)
 		})
 	}
 }
