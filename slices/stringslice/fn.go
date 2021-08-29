@@ -1,5 +1,7 @@
 package stringslice
 
+import "github.com/jwhittle933/funked/boolean"
+
 type BoolComped interface {
 	And(bfn BoolFn) BoolFn
 	AndNot(bfn BoolFn) BoolFn
@@ -108,28 +110,20 @@ func (sfn StringFn) And(next StringFn) StringFn {
 // And composes two BoolFn together into a new BoolFn
 func (bfn BoolFn) And(next BoolFn) BoolFn {
 	return func(s string, iter int, strs []string) bool {
-		if bfn(s, iter, strs) {
-			return next(s, iter, strs)
-		}
-
-		return false
+		return boolean.And(bfn(s, iter, strs), next(s, iter, strs))
 	}
 }
 
 // AndNot composes two BoolFn into a new BoolFn, where `next` is expected to return false
 func (bfn BoolFn) AndNot(next BoolFn) BoolFn {
 	return func(s string, iter int, strs []string) bool {
-		if bfn(s, iter, strs) {
-			return !next(s, iter, strs)
-		}
-
-		return false
+		return boolean.AndNot(bfn(s, iter, strs), next(s, iter, strs))
 	}
 }
 
 // Or composes two BoolFn into a new BoolFn, where `bfn` or `next` are expected to return true
 func (bfn BoolFn) Or(next BoolFn) BoolFn {
 	return func(s string, iter int, list []string) bool {
-		return bfn(s, iter, list) || next(s, iter, list)
+		return boolean.Or(bfn(s, iter, list), next(s, iter, list))
 	}
 }
