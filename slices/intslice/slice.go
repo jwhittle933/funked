@@ -5,29 +5,54 @@ import (
 	"strconv"
 )
 
-type IntSlicer interface {
-	Filter(fn BoolFn) Slice
+// IntSlicedAssertion convenience interface for
+// all intslice funcs that return a bool
+type IntSlicedAssertion interface {
 	Some(fn BoolFn) bool
 	Every(fn BoolFn) bool
-	Map(fn IntFn) Slice
+	Includes(integer int) bool
+	Empty() bool
+}
+
+// IntSlicedItem convenience interface for
+// all intslice funcs that return an item from the Slice
+type IntSlicedItem interface {
 	Find(fn BoolFn) *int
 	FindIndex(fn BoolFn) *int
-	Includes(integer int) bool
 	IndexOf(integer int) *int
-	Join(sep string) string
 	First() *int
 	Last() *int
 	At(index int) *int
+}
+
+// IntSlicer convenience interface for all
+// intslice funcs that return another Slice
+type IntSlicer interface {
+	Filter(fn BoolFn) Slice
+	Map(fn IntFn) Slice
 	Prepend(integer int) Slice
-	Empty() bool
-	Sort() Slice
 	Copy(dst Slice) Slice
+	Sort() []int
+}
+
+// IntSliced convenience interface for Slice API
+type IntSliced interface {
+	Join(sep string) string
+	Slicer
+	SlicedAssertion
+	SlicedItem
 }
 
 type Slice []int
 
 func From(ints []int) Slice {
 	return ints
+}
+
+func Copy(ints []int) Slice {
+	c := make([]int, 0, len(ints))
+	copy(c, ints)
+	return From(c)
 }
 
 func (s Slice) Filter(bfn BoolFn) Slice {

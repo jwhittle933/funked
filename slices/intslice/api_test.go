@@ -22,12 +22,6 @@ func intFnAccumulator(start int) IntFn {
 	}
 }
 
-func pointerFunc(i int) func() *int {
-	return func() *int {
-		return &i
-	}
-}
-
 func TestFilter(t *testing.T) {
 	tests := []struct {
 		name        string
@@ -445,6 +439,19 @@ func TestAt(t *testing.T) {
 		{
 			name:     "Empty list returns nil",
 			ints:     intSlice(),
+			at:       2,
+			expected: func() *int { return nil },
+		},
+		{
+			name:     "Negative index returns nil",
+			ints:     intSlice(1, 2, 3, 4),
+			at:       -1,
+			expected: func() *int { return nil },
+		},
+		{
+			name:     "Index greater than length of slice",
+			ints:     intSlice(1, 2, 3, 4),
+			at:       10,
 			expected: func() *int { return nil },
 		},
 	}
@@ -547,7 +554,7 @@ func TestCopy(t *testing.T) {
 		ints []int
 	}{
 		{
-			name: "Prepends int",
+			name: "Copies ints",
 			ints: intSlice(101, 200, 150, 1000, 5),
 		},
 	}

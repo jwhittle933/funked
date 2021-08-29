@@ -16,38 +16,38 @@ func main() {
 
 	mapped := stringslice.
 		StringFn(prependDashes).
-		With(doubleWithDashes).
-		With(appendDashes).
+		And(doubleWithDashes).
+		And(appendDashes).
 		Map(strings)
 
 	fmt.Println(mapped)
 
 	filtered := stringslice.
 		BoolFn(hasLength(15)).
-		With(containsDashes).
+		And(containsDashes).
 		Filter(mapped)
 
 	fmt.Println(filtered)
 }
 
-func doubleWithDashes(s string) string {
+func doubleWithDashes(s string, _ int, _ []string) string {
 	return s + "--" + s
 }
 
-func appendDashes(s string) string {
+func appendDashes(s string, _ int, _ []string) string {
 	return s + "--"
 }
 
-func prependDashes(s string) string {
+func prependDashes(s string, _ int, _ []string) string {
 	return "--" + s
 }
 
 func hasLength(l int) stringslice.BoolFn {
-	return func(s string) bool {
+	return func(s string, _ int, _ []string) bool {
 		return len(s) >= l
 	}
 }
 
-func containsDashes(s string) bool {
+func containsDashes(s string, _ int, _ []string) bool {
 	return strings.Contains(s, "-")
 }

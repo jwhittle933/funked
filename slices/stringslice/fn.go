@@ -1,13 +1,35 @@
 package stringslice
 
-type BoolFn func(string) bool
-type StringFn func(string) string
+type BoolComped interface {
+	And(bfn BoolFn) BoolFn
+	AndNot(bfn BoolFn) BoolFn
+	Or(bfn BoolFn) BoolFn
+}
+
+type StringComped interface {
+	And(sfn StringFn) StringFn
+}
+
+type BoolFunked interface {
+	Filter([]string) []string
+	Some([]string) bool
+	Every([]string) bool
+	BoolComped
+}
+
+type StringFunked interface {
+	Map([]string) []string
+	StringComped
+}
+
+type BoolFn func(string, int, []string) bool
+type StringFn func(string, int, []string) string
 
 func (bfn BoolFn) Filter(strs []string) []string {
 	filtered := make([]string, 0, len(strs))
 
-	for _, str := range strs {
-		if bfn(str) {
+	for i, str := range strs {
+		if bfn(str, i, strs) {
 			filtered = append(filtered, str)
 		}
 	}
@@ -20,15 +42,15 @@ func (sfn StringFn) Map(strs []string) []string {
 	mapped := make([]string, length, length)
 
 	for i := 0; i < length; i++ {
-		mapped[i] = sfn(strs[i])
+		mapped[i] = sfn(strs[i], i, strs)
 	}
 
 	return mapped
 }
 
 func (bfn BoolFn) Some(strs []string) bool {
-	for _, str := range strs {
-		if bfn(str) {
+	for i, str := range strs {
+		if bfn(str, i, strs) {
 			return true
 		}
 	}
@@ -37,8 +59,8 @@ func (bfn BoolFn) Some(strs []string) bool {
 }
 
 func (bfn BoolFn) Every(strs []string) bool {
-	for _, str := range strs {
-		if !bfn(str) {
+	for i, str := range strs {
+		if !bfn(str, i, strs) {
 			return false
 		}
 	}
@@ -46,18 +68,68 @@ func (bfn BoolFn) Every(strs []string) bool {
 	return true
 }
 
-func (sfn StringFn) With(next StringFn) StringFn {
-	return func(s string) string {
-		return next(sfn(s))
+
+// Find returns a pointer the value of the first match
+// If not found, returns nil
+func (bfn BoolFn) Find(strs []string) *string {
+	for iter, s := range strs {
+		if bfn(s, iter, strs) {
+			return &s
+		}
+	}
+
+	return nil
+}
+
+// FindIndex returns a pointer the value of the first match
+// If not found, returns nil
+func (bfn BoolFn) FindIndex(strs []string) *int {
+	for iter, s := range strs {
+		if bfn(s, iter, strs) {
+			return &iter
+		}
+	}
+
+	return nil
+}
+
+
+// And composes two StringFn together into a new StringFn
+// Each StringFn in composition is applied to each item in the
+// collection before collection iteration continues
+// Example:
+//  for [x, y, z] -> [first(second(third(x))), first(second(third(y))), first(second(third(z)))]
+func (sfn StringFn) And(next StringFn) StringFn {
+	return func(s string, iter int, strs []string) string {
+		return sfn(next(s, iter, strs), iter, strs)
 	}
 }
 
-func (bfn BoolFn) With(next BoolFn) BoolFn {
-	return func(s string) bool {
-		if bfn(s) {
-			return next(s)
+// And composes two BoolFn together into a new BoolFn
+func (bfn BoolFn) And(next BoolFn) BoolFn {
+	return func(s string, iter int, strs []string) bool {
+		if bfn(s, iter, strs) {
+			return next(s, iter, strs)
 		}
 
 		return false
+	}
+}
+
+// AndNot composes two BoolFn into a new BoolFn, where `next` is expected to return false
+func (bfn BoolFn) AndNot(next BoolFn) BoolFn {
+	return func(s string, iter int, strs []string) bool {
+		if bfn(s, iter, strs) {
+			return !next(s, iter, strs)
+		}
+
+		return false
+	}
+}
+
+// Or composes two BoolFn into a new BoolFn, where `bfn` or `next` are expected to return true
+func (bfn BoolFn) Or(next BoolFn) BoolFn {
+	return func(s string, iter int, list []string) bool {
+		return bfn(s, iter, list) || next(s, iter, list)
 	}
 }

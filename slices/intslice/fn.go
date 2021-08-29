@@ -1,19 +1,27 @@
 package intslice
 
+// BoolComped convenience interface for
+// composing BoolFn
 type BoolComped interface {
 	And(bfn BoolFn) BoolFn
 	AndNot(bfn BoolFn) BoolFn
 	Or(bfn BoolFn) BoolFn
 }
 
+// IntComped convenience interface for
+// composing IntFn
 type IntComped interface {
 	And(ifn IntFn) IntFn
 }
 
+// BoolFunked convenience interface for
+// the Fn API
 type BoolFunked interface {
 	Filter([]int) []int
 	Some([]int) bool
 	Every([]int) bool
+	Find([]int) *int
+	FindIndex([]int) *int
 	BoolComped
 }
 
@@ -104,7 +112,7 @@ func (bfn BoolFn) FindIndex(ints []int) *int {
 // And composes two IntFn together into a new IntFn
 func (ifn IntFn) And(next IntFn) IntFn {
 	return func(i int, iter int, list []int) int {
-		return next(ifn(i, iter, list), iter, list)
+		return ifn(next(i, iter, list), iter, list)
 	}
 }
 

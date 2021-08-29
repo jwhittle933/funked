@@ -5,8 +5,9 @@ build:
 .PHONY: build
 
 t ?= ./...
+run ?= Test
 test:
-	@grc &> /dev/null && grc go test -cover $(t) || go test -cover $(t)
+	@grc &> /dev/null && grc go test -cover $(t) -run=$(run) || go test -cover $(t) -run=$(run)
 .PHONY: test
 
 run:
