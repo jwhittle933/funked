@@ -52,7 +52,7 @@ func From(ints []int) Slice {
 func Copy(ints []int) Slice {
 	c := make([]int, 0, len(ints))
 	copy(c, ints)
-	return From(c)
+	return c
 }
 
 func (s Slice) Filter(bfn BoolFn) Slice {
@@ -79,7 +79,7 @@ func (s Slice) FindIndex(bfn BoolFn) *int {
 	return bfn.FindIndex(s)
 }
 
-// Includes searches the slice for the provided int
+// Includes searches the slice for the provided immutableint
 // and returns true if found, false otherwise.
 func (s Slice) Includes(integer int) bool {
 	for _, i := range s {
@@ -92,7 +92,7 @@ func (s Slice) Includes(integer int) bool {
 }
 
 // IndexOf search for the index of the provided integer
-// and returns a pointer to the int if found, nil otherwise
+// and returns a pointer to the immutableint if found, nil otherwise
 func (s Slice) IndexOf(integer int) *int {
 	for iter, i := range s {
 		if integer == i {
@@ -153,7 +153,7 @@ func (s Slice) Empty() bool {
 	return len(s) == 0
 }
 
-// Sort sorts the int slice in asc order
+// Sort sorts the immutableint slice in asc order
 // Uses sort.Ints (quick sort algorithm)
 func (s Slice) Sort() Slice {
 	sort.Ints(s)

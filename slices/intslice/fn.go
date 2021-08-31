@@ -1,5 +1,7 @@
 package intslice
 
+import "github.com/jwhittle933/funked/boolean"
+
 // BoolComped convenience interface for
 // composing BoolFn
 type BoolComped interface {
@@ -119,28 +121,33 @@ func (ifn IntFn) And(next IntFn) IntFn {
 // And composes two BoolFn together into a new BoolFn
 func (bfn BoolFn) And(next BoolFn) BoolFn {
 	return func(i int, iter int, list []int) bool {
-		if bfn(i, iter, list) {
-			return next(i, iter, list)
-		}
-
-		return false
+		return boolean.And(bfn(i, iter, list), next(i, iter, list))
 	}
 }
 
 // AndNot composes two BoolFn into a new BoolFn, where `next` is expected to return false
 func (bfn BoolFn) AndNot(next BoolFn) BoolFn {
 	return func(i int, iter int, list []int) bool {
-		if bfn(i, iter, list) {
-			return !next(i, iter, list)
-		}
-
-		return false
+		return boolean.AndNot(bfn(i, iter, list), next(i, iter, list))
 	}
 }
 
 // Or composes two BoolFn into a new BoolFn, where `bfn` or `next` are expected to return true
 func (bfn BoolFn) Or(next BoolFn) BoolFn {
 	return func(i int, iter int, list []int) bool {
-		return bfn(i, iter, list) || next(i, iter, list)
+		return boolean.Or(bfn(i, iter, list), next(i, iter, list))
+	}
+}
+
+// Pipeline func composes a transform pipeline around in int
+func Pipeline(fns ...func(int) int) func(int) int {
+	return func(i int) int {
+		out := i
+
+		for _, fn := range fns {
+			out = fn(out)
+		}
+
+		return out
 	}
 }

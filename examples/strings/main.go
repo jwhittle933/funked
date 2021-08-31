@@ -8,26 +8,38 @@ import (
 )
 
 func main() {
-	strings := []string{"one", "two", "three", "four", "five"}
+	strs := []string{"one", "two", "three", "four", "five"}
 
-	fmt.Println(stringslice.From(strings).Map(doubleWithDashes))
-	fmt.Println(stringslice.StringFn(doubleWithDashes).Map(strings))
-	fmt.Println(stringslice.Map(strings, doubleWithDashes))
+	fmt.Println(stringslice.From(strs).Map(doubleWithDashes))
+	fmt.Println(stringslice.StringFn(doubleWithDashes).Map(strs))
+	fmt.Println(stringslice.Map(strs, doubleWithDashes))
+
+	fmt.Println(
+		stringslice.From(strs).
+			Map(doubleWithDashes).
+			Filter(containsDashes).
+			Some(hasLength(10)),
+	)
+
+	fmt.Println(
+		stringslice.Map(strs, doubleWithDashes).
+			Filter(containsDashes).
+			Some(hasLength(10)),
+	)
 
 	mapped := stringslice.
 		StringFn(prependDashes).
 		And(doubleWithDashes).
 		And(appendDashes).
-		Map(strings)
+		Map(strs)
 
 	fmt.Println(mapped)
 
-	filtered := stringslice.
-		BoolFn(hasLength(15)).
-		And(containsDashes).
-		Filter(mapped)
-
-	fmt.Println(filtered)
+	fmt.Println(
+		hasLength(15).
+			And(containsDashes).
+			Filter(mapped),
+	)
 }
 
 func doubleWithDashes(s string, _ int, _ []string) string {

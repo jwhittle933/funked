@@ -45,7 +45,7 @@ func (s Slice) Includes(str string) bool {
 	return false
 }
 
-// IndexOf search for the index of the provided string
+// IndexOf search for the index of the provided immutablestring
 // and returns a pointer to the index if found, nil otherwise
 func (s Slice) IndexOf(str string) *int {
 	for iter, item := range s {
@@ -91,7 +91,7 @@ func (s Slice) Prepend(i string) Slice {
 	return append(out, s...)
 }
 
-// Sort sorts the string slice
+// Sort sorts the immutablestring slice
 func (s Slice) Sort() Slice {
 	sort.Strings(s)
 	return s

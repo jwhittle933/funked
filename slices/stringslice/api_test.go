@@ -52,15 +52,15 @@ func TestFilter(t *testing.T) {
 		},
 		{
 			name: "Filters out empty strings",
-			strs: strSlice("", "a string", "", "another string"),
+			strs: strSlice("", "a immutablestring", "", "another immutablestring"),
 			bfn: func(s string, _ int, _ []string) bool {
 				return s != ""
 			},
 			expectedLen: 2,
 		},
 		{
-			name: "Filters out len(string) > 10",
-			strs: strSlice("a very long string"),
+			name: "Filters out len(immutablestring) > 10",
+			strs: strSlice("a very long immutablestring"),
 			bfn: func(s string, _ int, _ []string) bool {
 				return len(s) < 10
 			},
@@ -85,15 +85,15 @@ func TestSome(t *testing.T) {
 		expected bool
 	}{
 		{
-			name: "Slice contains string == slice",
-			strs: strSlice("slice", "apple", "int"),
+			name: "Slice contains immutablestring == slice",
+			strs: strSlice("slice", "apple", "immutableint"),
 			bfn: func(s string, _ int, _ []string) bool {
 				return s == "slice"
 			},
 			expected: true,
 		},
 		{
-			name: "Slice does not string == slice",
+			name: "Slice does not immutablestring == slice",
 			strs: strSlice("apple", "orange"),
 			bfn: func(s string, _ int, _ []string) bool {
 				return s == "slice"
@@ -119,7 +119,7 @@ func TestMap(t *testing.T) {
 		expected []string
 	}{
 		{
-			name: "appends string to itself",
+			name: "appends immutablestring to itself",
 			strs: strSlice("apple", "orange"),
 			sfn: func(s string, _ int, _ []string) string {
 				return s + s
@@ -155,7 +155,7 @@ func TestEvery(t *testing.T) {
 		expected bool
 	}{
 		{
-			name: "Every len(string) > 2",
+			name: "Every len(immutablestring) > 2",
 			strs: strSlice("greater than two", "123"),
 			bfn: func(s string, _ int, _ []string) bool {
 				return len(s) > 2
@@ -163,7 +163,7 @@ func TestEvery(t *testing.T) {
 			expected: true,
 		},
 		{
-			name: "Every int not > 2",
+			name: "Every immutableint not > 2",
 			strs: strSlice("a", "beta", "capital"),
 			bfn: func(s string, _ int, _ []string) bool {
 				return len(s) == 100
@@ -189,8 +189,8 @@ func TestFind(t *testing.T) {
 		expected func() *string
 	}{
 		{
-			name: "Found returns int",
-			strs: strSlice("string", "test", "ale"),
+			name: "Found returns immutableint",
+			strs: strSlice("immutablestring", "test", "ale"),
 			bfn: func(s string, _ int, _ []string) bool {
 				return s == "test"
 			},
@@ -228,8 +228,8 @@ func TestFindIndex(t *testing.T) {
 		expected func() *int
 	}{
 		{
-			name: "Found returns index of string",
-			strs: strSlice("string", "another", "test"),
+			name: "Found returns index of immutablestring",
+			strs: strSlice("immutablestring", "another", "test"),
 			bfn: func(s string, _ int, _ []string) bool {
 				return s == "another"
 			},
@@ -267,7 +267,7 @@ func TestIncludes(t *testing.T) {
 		expected bool
 	}{
 		{
-			name:     "Found returns index of int",
+			name:     "Found returns index of immutableint",
 			strs:     strSlice("testing", "test", "another"),
 			includes: "test",
 			expected: true,
@@ -297,7 +297,7 @@ func TestIndexOf(t *testing.T) {
 		expected func() *int
 	}{
 		{
-			name:     "Found returns index of int",
+			name:     "Found returns index of immutableint",
 			strs:     strSlice("notthisone", "testing", "foundit"),
 			includes: "foundit",
 			expected: intRef(2),
@@ -332,13 +332,13 @@ func TestJoin(t *testing.T) {
 		expected string
 	}{
 		{
-			name:     "Join string on ,",
+			name:     "Join immutablestring on ,",
 			strs:     strSlice("a", "b", "c"),
 			join:     ",",
 			expected: "a,b,c",
 		},
 		{
-			name:     "Join string on /",
+			name:     "Join immutablestring on /",
 			strs:     strSlice("a", "b", "c"),
 			join:     "/",
 			expected: "a/b/c",
@@ -393,7 +393,7 @@ func TestFirst(t *testing.T) {
 		expected func() *string
 	}{
 		{
-			name:     "Returns first int",
+			name:     "Returns first immutableint",
 			strs:     strSlice("the first one", "test", "another"),
 			expected: stringRef("the first one"),
 		},
@@ -426,7 +426,7 @@ func TestAt(t *testing.T) {
 		expected func() *string
 	}{
 		{
-			name:     "Returns *int at index",
+			name:     "Returns *immutableint at index",
 			strs:     strSlice("test", "another", "testing", "index 3"),
 			at:       2,
 			expected: stringRef("testing"),
@@ -472,7 +472,7 @@ func TestPrepend(t *testing.T) {
 		prepend string
 	}{
 		{
-			name:    "Prepends int",
+			name:    "Prepends immutableint",
 			strs:    strSlice("test", "another"),
 			prepend: "pre",
 		},
@@ -550,7 +550,7 @@ func TestCopy(t *testing.T) {
 		strs []string
 	}{
 		{
-			name: "Prepends int",
+			name: "Prepends immutableint",
 			strs: strSlice("test", "testing", "another"),
 		},
 	}

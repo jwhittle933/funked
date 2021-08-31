@@ -7,6 +7,7 @@ build:
 t ?= ./...
 run ?= Test
 test:
+	@go vet $(t)
 	@grc &> /dev/null && grc go test -cover $(t) -run=$(run) || go test -cover $(t) -run=$(run)
 .PHONY: test
 

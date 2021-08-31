@@ -70,7 +70,6 @@ func (bfn BoolFn) Every(strs []string) bool {
 	return true
 }
 
-
 // Find returns a pointer the value of the first match
 // If not found, returns nil
 func (bfn BoolFn) Find(strs []string) *string {
@@ -94,7 +93,6 @@ func (bfn BoolFn) FindIndex(strs []string) *int {
 
 	return nil
 }
-
 
 // And composes two StringFn together into a new StringFn
 // Each StringFn in composition is applied to each item in the
@@ -125,5 +123,26 @@ func (bfn BoolFn) AndNot(next BoolFn) BoolFn {
 func (bfn BoolFn) Or(next BoolFn) BoolFn {
 	return func(s string, iter int, list []string) bool {
 		return boolean.Or(bfn(s, iter, list), next(s, iter, list))
+	}
+}
+
+// StringEquals convenience function for
+// string comparison BoolFn
+func StringEquals(compareTo string) BoolFn {
+	return func(s string, _ int, _ []string) bool {
+		return compareTo == s
+	}
+}
+
+// Pipeline func composes a transform pipeline around a string
+func Pipeline(fns ...func(string) string) func(string) string {
+	return func(s string) string {
+		out := s
+
+		for _, fn := range fns {
+			out = fn(out)
+		}
+
+		return out
 	}
 }

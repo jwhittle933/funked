@@ -72,6 +72,13 @@ Using the funked interfaces, the Slice API and Fn API can be dependency injected
 
 ## Composition API
 The Composition api allows you to compose the Fn API into reusable pipelines for mapping, filtering, etc. Each package has a `BoolComped` and `<Type>Comped` interface, e.g., `intslice.BoolComped` and `intslice.IntComped`.
+```go
+stringslice.
+    StringFn(prependDashes).
+    And(doubleWithDashes).
+    And(appendDashes).
+    Map(strs)
+```
 
 ## [`stringslice`](./slices/stringslice)
 This package adds functional helpers to `[]string`.

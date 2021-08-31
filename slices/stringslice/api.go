@@ -23,9 +23,9 @@ type SlicedItem interface {
 // Slicer convenience interface for all
 // stringslice funcs that return another Slice
 type Slicer interface {
-	Filter(Slice, BoolFn) []int
-	Map(Slice, StringFn) []int
-	Prepend(Slice, int) []int
+	Filter(Slice, BoolFn) Slice
+	Map(Slice, StringFn) Slice
+	Prepend(Slice, int) Slice
 	Sort(Slice) []int
 }
 
@@ -37,11 +37,11 @@ type Sliced interface {
 	SlicedItem
 }
 
-func Filter(s Slice, bfn BoolFn) []string {
+func Filter(s Slice, bfn BoolFn) Slice {
 	return s.Filter(bfn)
 }
 
-func Map(s Slice, sfn StringFn) []string {
+func Map(s Slice, sfn StringFn) Slice {
 	return s.Map(sfn)
 }
 
