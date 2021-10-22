@@ -31,7 +31,7 @@ func (c *Composer) Prepend(composer BoolComposer) *Composer {
 }
 
 func (c *Composer) Insert(at int, composer BoolComposer) *Composer {
-	composers := make([]BoolComposer, len(c.composers)+1, len(c.composers)+1)
+	composers := make([]BoolComposer, len(c.composers)+1)
 	composers[at] = composer
 
 	for i, comp := range c.composers[0:at] {
