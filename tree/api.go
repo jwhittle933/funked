@@ -106,9 +106,9 @@ func (t *Tree) Find(path ...string) (int, Node) {
 	return depth, n
 }
 
-func (t *Tree) Add(node Node, mode PreserveMode, path ...string) *Tree {
+func (t *Tree) Add(node Node, mode PreserveMode, path ...string) {
 	if len(path) == 0 {
-		return t
+		return
 	}
 
 	n := t.root
@@ -128,7 +128,6 @@ func (t *Tree) Add(node Node, mode PreserveMode, path ...string) *Tree {
 	}
 
 	t.setDepth(pathLen)
-	return t
 }
 
 func (t *Tree) Depth() int {

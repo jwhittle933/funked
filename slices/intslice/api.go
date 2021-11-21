@@ -96,4 +96,3 @@ func Empty(s Slice) bool {
 func Sort(s Slice) Slice {
 	return s.Sort()
 }
-

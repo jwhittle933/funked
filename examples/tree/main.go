@@ -5,5 +5,5 @@ import (
 )
 
 func main() {
-	t := tree.New(tree.NewBranch(tree.Root))
+	tree.New(tree.NewBranch(tree.Root))
 }
