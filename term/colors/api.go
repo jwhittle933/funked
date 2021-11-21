@@ -35,33 +35,46 @@ type Sprinter interface {
 	Sprintf(format string, args ...interface{}) string
 }
 
+type Layer interface {
+	Fg() Color
+	Bg() Color
+}
+
+// Color interface represents a colorized print utility
 type Color interface {
 	Uint() uint
 	Printer
 	Sprinter
+	Layer
 	fmt.Stringer
 }
 
+// Printf formatted printer for Color.
 func Printf(c Color, format string, args ...interface{}) {
 	c.Printf(format, args...)
 }
 
+// Println formatted printer for Color.
 func Println(c Color, format string, args ...interface{}) {
 	c.Println(format, args...)
 }
 
+// Sprintf formats `args` with color codes from `c`.
 func Sprintf(c Color, format string, args ...interface{}) string {
 	return c.Sprintf(format, args...)
 }
 
+// Red read the R-value from the rgb value.
 func Red(rgb uint32) uint8 {
 	return uint8((rgb >> 16) & 0xff)
 }
 
+// Green reads the G-value from the rgb value.
 func Green(rgb uint32) uint8 {
 	return uint8((rgb >> 8) & 0xff)
 }
 
+// Blue reads the B-value from the rgb value.
 func Blue(rgb uint32) uint8 {
 	return uint8(rgb & 0xff)
 }
@@ -72,7 +85,6 @@ func Luminance(rgb uint32) uint8 {
 		1211005*(rgb&0xff)
 	return uint8((x + (1 << 23)) >> 24)
 }
-
 
 // RGBToANSI converts rgb values into an ANSI 8-bit integer.
 func RGBToANSI(r, g, b uint8) uint8 {

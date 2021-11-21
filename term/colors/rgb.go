@@ -40,18 +40,18 @@ func (r RGB) RGB() (uint8, uint8, uint8) {
 
 // ANSI converts the RGB to an ANSI 8-bit integer.
 func (r RGB) ANSI() ANSI {
-	return ANSI{RGBToANSI(r.Red, r.Green, r.Blue), r.format}
+	return NewANSI(RGBToANSI(r.Red, r.Green, r.Blue))
 }
 
 // Bg sets the background color instead of foreground color
-func (r RGB) Bg() RGB {
+func (r RGB) Bg() Color {
 	r.format = fmtRGBLayerBackground
 	return r
 }
 
 // Fg sets the foreground color instead of background color.
 // Foreground is the default behavior.
-func (r RGB) Fg() RGB {
+func (r RGB) Fg() Color {
 	r.format = fmtRGBLayerForeground
 	return r
 }

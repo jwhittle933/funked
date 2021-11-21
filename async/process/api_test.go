@@ -1,10 +1,8 @@
 package process
 
 import (
-	"testing"
-	"time"
-
 	"github.com/stretchr/testify/assert"
+	"testing"
 )
 
 func TestSpawn(t *testing.T) {
@@ -30,13 +28,18 @@ func TestSend(t *testing.T) {
 
 func TestAlive(t *testing.T) {
 	pid := NewPID()
-	assert.Equal(t, false, Alive(pid))
+	assert.False(t, Alive(pid))
 
+	c := make(chan bool, 1)
 	proc := Spawn(Discard(func() {
-		time.Sleep(3)
+		<-c
 	}))
 
-	assert.Equal(t, true, Alive(proc))
+	assert.True(t, Alive(proc))
+	c <- true
+	close(c)
+	Wait(proc)
+	assert.False(t, Alive(proc))
 }
 
 func TestPID_Receive(t *testing.T) {
@@ -46,6 +49,7 @@ func TestPID_Receive(t *testing.T) {
 
 	pid.alive = true
 	pid.Send([]byte("test"))
+	pid.out <- []byte("message received")
 	assert.NotNil(t, pid.Receive())
 }
 

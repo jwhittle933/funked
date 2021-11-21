@@ -36,7 +36,7 @@ func TestColor_ANSI(t *testing.T) {
 			rgb := NewRGB(testCase.r, testCase.g, testCase.b)
 			ansi := rgb.ANSI()
 
-			assert.Equal(t, testCase.ansi, uint8(ansi), "ANSI values do not match")
+			assert.Equal(t, testCase.ansi, ansi.a, "ANSI values do not match")
 			rgb.Printf("RGB(%s)", rgb)
 			fmt.Print(" -- ")
 			ansi.Printf("ANSI(%s)", ansi)

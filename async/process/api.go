@@ -13,22 +13,23 @@ type Process interface {
 	Close()
 }
 
-// Fn is a func the runs in its own process
-type Fn func(<-chan []byte, chan<- []byte)
+// SpawnFn is a func the runs in its own process
+type SpawnFn func(<-chan []byte, chan<- []byte)
 
 // Spawn starts an async process and returns the
 // PID of the process. If the process panics, the panic is captured
 // and sent to a recovery channel
-func Spawn(process Fn) Process {
+func Spawn(process SpawnFn) Process {
 	pid := NewPID()
 
 	var wg sync.WaitGroup
 	wg.Add(1)
 	go func() {
+		defer capture(pid)
+
 		pid.alive = true
 		wg.Done()
 		process(pid.receive, pid.out)
-		capture(pid)
 		pid.Close()
 	}()
 
@@ -50,8 +51,8 @@ func Wait(p Process) {
 	}
 }
 
-func Discard(proc func()) Fn {
-	return func(_ <-chan []byte, _ chan<- []byte) {
+func Discard(proc func()) SpawnFn {
+	return func(<-chan []byte, chan<- []byte) {
 		proc()
 	}
 }

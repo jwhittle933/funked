@@ -30,14 +30,14 @@ func (a ANSI) RGB() RGB {
 }
 
 // Bg sets the background color instead of foreground color
-func (a ANSI) Bg() ANSI {
+func (a ANSI) Bg() Color {
 	a.format = fmtANSILayerBackground
 	return a
 }
 
 // Fg sets the foreground color instead of background color.
 // Foreground is the default behavior.
-func (a ANSI) Fg() ANSI {
+func (a ANSI) Fg() Color {
 	a.format = fmtANSILayerForeground
 	return a
 }

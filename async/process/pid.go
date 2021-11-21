@@ -3,7 +3,9 @@
 package process
 
 import (
+	"bytes"
 	"fmt"
+	"io"
 	"math/rand"
 )
 
@@ -21,8 +23,8 @@ func NewPID() *PID {
 		uint8(rand.Int()),
 		uint8(rand.Int()),
 		uint8(rand.Int()),
-		make(chan []byte),
-		make(chan []byte),
+		make(chan []byte, 1),
+		make(chan []byte, 1),
 		make(chan interface{}),
 		false,
 	}
@@ -61,4 +63,28 @@ func (p *PID) Close() {
 		close(p.recovery)
 		close(p.out)
 	}
+}
+
+// Read satisfies the io.Reader interface.
+func (p *PID) Read(b []byte) (int, error) {
+	if p.Alive() {
+		if n, err := io.Copy(bytes.NewBuffer(b), bytes.NewReader(p.Receive())); err != nil {
+			return int(n), err
+		}
+
+		return len(b), nil
+	}
+
+	return 0, fmt.Errorf("process %s is not alive", p)
+}
+
+// Write satisfies the io.Writer interface.
+// If PID is not alive, Write returns an error.
+func (p *PID) Write(msg []byte) (int, error) {
+	if p.Alive() {
+		p.Send(msg)
+		return len(msg), nil
+	}
+
+	return 0, fmt.Errorf("process %s is not alive", p)
 }
