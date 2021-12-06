@@ -164,3 +164,13 @@ func (s Slice) Copy(dst []int) Slice {
 	copy(dst, s)
 	return dst
 }
+
+func (s Slice) ToMap() map[int]int {
+	out := make(map[int]int, len(s))
+
+	for i, in := range s {
+		out[i] = in
+	}
+
+	return out
+}

@@ -1,84 +1,75 @@
 package main
 
 import (
-	"bufio"
-	"bytes"
 	"fmt"
+	"io/ioutil"
 	"os"
-	"strconv"
-
-	"github.com/tidwall/sjson"
+	"path/filepath"
 
 	"github.com/jwhittle933/funked/async/process"
+	"github.com/jwhittle933/funked/term/colors"
 )
 
+// FileProcessor example struct for reading and decoding a file.
+// Not safe for concurrent use.
+type FileProcessor struct {
+	filename string
+	f        *os.File
+	decode   func([]byte)
+}
+
+// NewFileProcessor factory for FileProcessor.
+func NewFileProcessor(file string, decoder func([]byte)) *FileProcessor {
+	return &FileProcessor{file, nil, decoder}
+}
+
+// Process processes the file contents.
+func (p *FileProcessor) Process() {
+	home, _ := os.UserHomeDir()
+	location := filepath.Join(home, "Development", "lexica", p.filename)
+
+	f, err := os.Open(location)
+	fmt.Printf("\t%s: %s\n", colors.NewANSI(50).Sprintf("Open"), location)
+	if err != nil {
+		panic(err)
+	}
+	defer f.Close()
+
+	content, err := ioutil.ReadAll(f)
+	fmt.Printf("\t%s: %s\n", colors.NewANSI(200).Sprintf("Read"), location)
+	if err != nil {
+		panic(err)
+	}
+
+	p.decode(content)
+}
+
 func main() {
-	pid := process.Spawn(echoServer)
-	go func() {
-		for msg := pid.Receive(); ; msg = pid.Receive() {
-			fmt.Println("->", string(msg))
-		}
-	}()
+	greek := NewFileProcessor("grc/lsj/dictionary.json", func(content []byte) {
+		printSize("grc/lsj/dictionary.json", len(content))
+	})
+	hebrew := NewFileProcessor("heb1/BDB/DictBDB.json", func(content []byte) {
+		printSize("heb/BDB/DictBDB.json", len(content))
+	})
+	latin := NewFileProcessor("lat/ls/ls_A.json", func(content []byte) {
+		printSize("lat/ls/ls_A.json", len(content))
+	})
 
-	scanner := bufio.NewScanner(os.Stdin)
-	fmt.Println("Type a string to echo. Type 'quit' to exit process")
-	for scanner.Scan() {
-		msg := scanner.Bytes()
-		if string(msg) == "quit" {
-			break
-		}
+	gkPID := process.Start(process.New(greek.Process))
+	hebPID := process.Start(process.New(hebrew.Process))
+	latinPID := process.Start(process.New(latin.Process))
 
-		pid.Send(scanner.Bytes())
-	}
-
-	pid = process.Spawn(stateMachine)
-	pid.Send([]byte(`name.first:funked`))
-	pid.Send([]byte(`int:0-int`))
-	pid.Send([]byte(`string:a string`))
-	pid.Send([]byte(`float:14.5-float32`))
-	pid.Send([]byte("quit"))
-
-	fmt.Println("State:", string(pid.Receive()))
+	process.Await(gkPID)
+	process.Await(hebPID)
+	process.Await(latinPID)
 }
 
-func echoServer(r <-chan []byte, w chan<- []byte) {
-	for msg := <-r; string(msg) != "quit"; msg = <-r {
-		w <- msg
-	}
-
-	w <- []byte("closed")
-}
-
-func stateMachine(r <-chan []byte, w chan<- []byte) {
-	state := []byte(`{}`)
-	for msg := <-r; string(msg) != "quit"; msg = <-r {
-		keyVal := bytes.Split(msg, []byte(`:`))
-		newState, _ := sjson.Set(string(state), string(keyVal[0]), typed(keyVal[1]))
-		state = []byte(newState)
-	}
-
-	w <- state
-}
-
-func typed(val []byte) interface{} {
-	valType := bytes.Split(val, []byte("-"))
-	if len(valType) == 1 {
-		return val
-	}
-
-	switch string(valType[1]) {
-	case "string":
-		return val
-	case "int":
-		out, _ := strconv.Atoi(string(valType[0]))
-		return out
-	case "float32":
-		out, _ := strconv.ParseFloat(string(valType[0]), 32)
-		return out
-	case "float64":
-		out, _ := strconv.ParseFloat(string(valType[0]), 64)
-		return out
-	default:
-		return nil
-	}
+func printSize(filename string, size int) {
+	fmt.Printf(
+		"\t%s: %s: %d%s\n",
+		colors.NewANSI(120).Sprintf("Size"),
+		filename,
+		size/1024/1024,
+		"MB",
+	)
 }

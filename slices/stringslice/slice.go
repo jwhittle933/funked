@@ -45,7 +45,7 @@ func (s Slice) Includes(str string) bool {
 	return false
 }
 
-// IndexOf search for the index of the provided immutablestring
+// IndexOf search for the index of the provided immutable string
 // and returns a pointer to the index if found, nil otherwise
 func (s Slice) IndexOf(str string) *int {
 	for iter, item := range s {
@@ -104,4 +104,14 @@ func (s Slice) Empty() bool {
 func (s Slice) Copy(dst []string) Slice {
 	copy(dst, s)
 	return dst
+}
+
+func (s Slice) ToMap() map[int]string {
+	out := make(map[int]string, len(s))
+
+	for i, str := range s {
+		out[i] = str
+	}
+
+	return out
 }

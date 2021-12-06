@@ -39,3 +39,13 @@ func (s Slice) EqualFolds(t []byte) bool {
 func (s Slice) Bytes() []byte {
 	return s
 }
+
+func (s Slice) ToMap() map[int]byte {
+	out := make(map[int]byte, len(s))
+
+	for i, b := range s {
+		out[i] = b
+	}
+
+	return out
+}
