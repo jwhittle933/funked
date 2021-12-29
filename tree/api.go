@@ -8,7 +8,7 @@ const (
 )
 
 const (
-	Root string = "root"
+	RootNode string = "root"
 )
 
 func (p PreserveMode) Preserve() bool {
@@ -19,71 +19,91 @@ func (p PreserveMode) Replace() bool {
 	return p == ModeReplace
 }
 
-type Trie interface {
-	Find(path ...string) (depth int, n Node)
-	Add(n Node, mode PreserveMode, path ...string)
-	Depth() int
-	Node
-}
-
-type Next interface {
-	Next(child string) Node
-}
-
-type Childish interface {
-	HasChild(name string) bool
-	Children() map[string]Node
+func (p PreserveMode) Uint8() uint8 {
+	return uint8(p)
 }
 
 type Node interface {
 	Name() string
 	IsLeaf() bool
 	IsRoot() bool
-	Append(key string, n Node, mode PreserveMode) Node
+}
+
+type Next interface {
+	Next(child string) Trie
+}
+
+type Childish interface {
+	HasChild(name string) bool
+	Children() map[string]Trie
+}
+
+type Trie interface {
+	Find(path ...string) (depth int, n Node)
+	Add(tree Trie, mode uint8, path ...string)
+	Append(key string, tree Trie, mode uint8) Node
+	Depth() int
+	Node
 	Next
 	Childish
 }
 
 type Tree struct {
-	root  Node
+	key   string
 	depth int
+	nodes map[string]Trie
 }
 
-func New(root Node) *Tree {
-	return &Tree{root, 0}
+func New(key string) *Tree {
+	return &Tree{key, 0, make(map[string]Trie)}
+}
+
+func NewRoot() *Tree {
+	return New(RootNode)
 }
 
 func (t *Tree) Name() string {
-	return t.root.Name()
+	return t.key
 }
 
 func (t *Tree) IsLeaf() bool {
-	return t.root.IsLeaf()
+	return len(t.nodes) == 0
 }
 
 func (t *Tree) IsRoot() bool {
-	return t.root.IsRoot()
-}
-
-func (t *Tree) Append(key string, n Node, mode PreserveMode) Node {
-	return t.root.Append(key, n, mode)
-}
-
-func (t *Tree) Next(child string) Node {
-	return t.root.Next(child)
-}
-
-func (t *Tree) Children() map[string]Node {
-	return t.root.Children()
+	return t.key == RootNode
 }
 
 func (t *Tree) HasChild(child string) bool {
-	return t.root.HasChild(child)
+	return !IsNilNode(t.nodes[child])
+}
+
+func (t *Tree) Next(child string) Trie {
+	return t.nodes[child]
+}
+
+func (t *Tree) Children() map[string]Trie {
+	return t.nodes
+}
+
+func (t *Tree) Append(key string, tree Trie, mode uint8) Node {
+	if found, ok := t.nodes[key]; ok && PreserveMode(mode).Preserve() {
+		return found
+	}
+
+	t.nodes[key] = tree
+	if t.depth == 0 {
+		t.depth = 1
+	}
+
+	return tree
 }
 
 func (t *Tree) Find(path ...string) (int, Node) {
-	depth := 0
-	n := t.root
+	var (
+		depth int  = 0
+		n     Trie = t
+	)
 
 	if len(path) == 0 {
 		return depth, nil
@@ -99,23 +119,31 @@ func (t *Tree) Find(path ...string) (int, Node) {
 		break
 	}
 
-	if !t.isPathMatch(n, depth, path) {
-		return 0, nil
-	}
-
 	return depth, n
 }
 
-func (t *Tree) Add(node Node, mode PreserveMode, path ...string) {
+func (t *Tree) FindExact(path ...string) (int, Node) {
+	depth, n := t.Find(path...)
+	if t.isPathMatch(n, depth, path) {
+		return depth, n
+	}
+
+	return 0, nil
+}
+
+func (t *Tree) Add(tree Trie, mode uint8, path ...string) {
+	var (
+		n Trie = t
+	)
+
 	if len(path) == 0 {
 		return
 	}
 
-	n := t.root
 	pathLen := len(path)
 	for i, p := range path {
 		if i == pathLen-1 {
-			n.Append(p, node, mode)
+			n.Append(p, tree, mode)
 			break
 		}
 
@@ -124,7 +152,7 @@ func (t *Tree) Add(node Node, mode PreserveMode, path ...string) {
 			continue
 		}
 
-		n.Append(p, node, mode)
+		n.Append(p, tree, mode)
 	}
 
 	t.setDepth(pathLen)
@@ -132,6 +160,10 @@ func (t *Tree) Add(node Node, mode PreserveMode, path ...string) {
 
 func (t *Tree) Depth() int {
 	return t.depth
+}
+
+func (t *Tree) Bredth() int {
+	return len(t.Children())
 }
 
 func (t *Tree) setDepth(delta int) {
@@ -153,4 +185,8 @@ func (t *Tree) isPathMatch(n Node, depth int, path []string) bool {
 
 func IsNilNode(n Node) bool {
 	return n == nil
+}
+
+func IsNilTrie(t Trie) bool {
+	return t == nil
 }

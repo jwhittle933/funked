@@ -21,14 +21,14 @@ type Wither func()
 
 func HTML(rr ...Renderer) Document {
 	return Document{
-		tree.New(tree.NewBranch("html")),
+		tree.New("html"),
 		make(chan struct{}),
 	}
 }
 
 func RenderHTML(rr ...Renderer) string {
 	return (Document{
-		tree.New(tree.NewBranch("html")),
+		tree.New("html"),
 		make(chan struct{}),
 	}).Render()
 }
