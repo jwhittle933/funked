@@ -41,7 +41,7 @@ type Childish interface {
 type Trie interface {
 	Find(path ...string) (depth int, n Node)
 	Add(tree Trie, mode uint8, path ...string)
-	Append(key string, tree Trie, mode uint8) Node
+	Append(key string, tree Trie, mode uint8) Trie
 	Depth() int
 	Node
 	Next
@@ -86,7 +86,7 @@ func (t *Tree) Children() map[string]Trie {
 	return t.nodes
 }
 
-func (t *Tree) Append(key string, tree Trie, mode uint8) Node {
+func (t *Tree) Append(key string, tree Trie, mode uint8) Trie {
 	if found, ok := t.nodes[key]; ok && PreserveMode(mode).Preserve() {
 		return found
 	}
