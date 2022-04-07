@@ -4,31 +4,31 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/jwhittle933/funked/slices/stringslice"
+	"github.com/jwhittle933/funked/slices"
 )
 
 func main() {
 	strs := []string{"one", "two", "three", "four", "five"}
 
-	fmt.Println(stringslice.From(strs).Map(doubleWithDashes))
-	fmt.Println(stringslice.StringFn(doubleWithDashes).Map(strs))
-	fmt.Println(stringslice.Map(strs, doubleWithDashes))
+	fmt.Println(slices.From(strs...).Map(doubleWithDashes))
+	fmt.Println(slices.TFn[string](doubleWithDashes).Map(strs))
+	fmt.Println(slices.Map(strs, doubleWithDashes))
 
 	fmt.Println(
-		stringslice.From(strs).
+		slices.From(strs...).
 			Map(doubleWithDashes).
 			Filter(containsDashes).
 			Some(hasLength(10)),
 	)
 
 	fmt.Println(
-		stringslice.Map(strs, doubleWithDashes).
+		slices.Map(strs, doubleWithDashes).
 			Filter(containsDashes).
 			Some(hasLength(10)),
 	)
 
-	mapped := stringslice.
-		StringFn(prependDashes).
+	mapped := slices.
+		TFn[string](prependDashes).
 		And(doubleWithDashes).
 		And(appendDashes).
 		Map(strs)
@@ -54,7 +54,7 @@ func prependDashes(s string, _ int, _ []string) string {
 	return "--" + s
 }
 
-func hasLength(l int) stringslice.BoolFn {
+func hasLength(l int) slices.BoolFn[string] {
 	return func(s string, _ int, _ []string) bool {
 		return len(s) >= l
 	}

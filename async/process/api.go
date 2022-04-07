@@ -2,6 +2,7 @@ package process
 
 import (
 	"fmt"
+
 	"github.com/jwhittle933/funked/term/colors"
 )
 
